@@ -1,7 +1,7 @@
 {% extends 'helpers/layout.html' %}
 
 {% block title %}
-Course: {{ course.name }}
+Student Performance Dashboard: {{ course.name }}
 {% endblock %}
 
 {% block statusbar %}
@@ -9,159 +9,252 @@ Course: {{ course.name }}
 
 {% block extrahead %}
     <style>
-        .additional-settings td {
-            padding: .1rem;
+        .dashboard-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            height: 100%;
+        }
+        .graph-placeholder {
+            background-color: #f8f9fa;
+            border: 2px dashed #ced4da;
+            color: #6c757d;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .table-risk {
+            font-size: 0.9rem;
         }
     </style>
-<script type='text/javascript'>
-
-function renameCourse() {
-    let newName = window.prompt("Give a new name for this course:", {{ course.name|tojson }});
-    if (newName != null) {
-        window.location.href = {{ url_for('courses.rename_course', course_id=course.id)|tojson }}+"&name="+newName;
-    }
-}
-
-</script>
 {% endblock %}
 
 {% block body %}
-    <h1>Course: {{ course.name }}</h1>
-    <div>
-        <a href="{{ url_for('courses.index') }}">Back to all courses</a><br><br>
-    </div>
-
-    <p>
-        Welcome to {{ course.name }} (Course URL: <code>{{ course.url }}</code>, Course ID: <code>{{ course.id }}</code>)
-    </p>
 
 {% if is_instructor %}
-<h3>Assignments</h3>
-    <div class="instructor-only-tools p-2">
-    <small>Instructor Tools (not visible to students or TAs)</small><br>
-    <a href="{{ url_for('courses.assignments', course_id=course.id) }}" class='btn btn-outline-secondary'>Manage Assignments</a> Create, edit, reorganize, and remove assignments.<br><br>
-    <a href="{{ url_for('courses.edit_points', course_id=course.id) }}" class='btn btn-outline-secondary'>Edit Points</a> Bulk Edit Points for assignments.<br><br>
-    <a href="{{ url_for('courses.edit_settings', course_id=course.id) }}" class='btn btn-outline-secondary'>Edit Settings</a> Bulk Edit other settings for assignments.<br><br>
-    <a href="{{ url_for('assignment_group.forking_menu', course_id=course.id) }}" class='btn btn-outline-secondary'>Make Forks</a> Copy assignments to other courses.<br><br>
-    <a href="{{ url_for('assignments.bulk_upload', course_id=course.id) }}" class='btn btn-outline-secondary'>Import Assignments</a> Load assignments exported from another course.<br><br>
-    <a href="{{ url_for('courses.export', course_id=course.id) }}" class="btn btn-outline-secondary">Export Assignments</a> Export all the assignments and groups owned by this course.<br><br>
-    </div>
-    <h3>Users</h3>
-    <div class="instructor-only-tools p-2">
-    <small>Instructor Tools (not visible to students or TAs)</small><br>
-    <a href="{{ url_for('courses.manage_users', course_id=course.id) }}" class='btn btn-outline-secondary'>Manage Students</a> Add, edit, and remove the students who are in your course.<br><br>
-    </div>
-{% endif %}
 
-{% if is_grader %}
-    <h3>Student Submissions</h3>
-    <div class="instructor-only-tools p-2">
-    <small>Grader Tools (not visible to students)</small><br>
-    <a href="{{ url_for('courses.submissions_filter', course_id=course.id) }}" class='btn btn-outline-secondary'>View Submissions</a> Old-style review and grade all student submissions<br><br>
-    <a href="{{ url_for('courses.watch_events', course_id=course.id) }}" class='btn btn-outline-secondary'>Watch Submissions</a> New-style review and grade all student submissions<br><br>
-    <a href="{{ url_for('courses.submissions_grid', course_id=course.id) }}" class='btn btn-outline-secondary'>View Grid</a> See all your students' assignment submissions' status in a big table.<br><br>
-    <a href="{{ url_for('courses.list_grading_failures', course_id=course.id) }}" class='btn btn-outline-secondary'>List Grading Failures</a> Review any students' submissions that triggered an error on the way to Canvas.<br><br>
-    <a href="{{ url_for('courses.check_similar', course_id=course.id) }}" class='btn btn-outline-secondary'>Check for Similar Submissions</a> Review all students' submissions for similarity with other submissions (across all courses).<br><br>
-    <a href="{{ url_for('courses.bulk_groups', course_id=course.id) }}" class='btn btn-outline-secondary'>Bulk Group Editor</a> Experimental interface to allow bulk download/upload of student submissions with assignment groups.<br><br>
-        <a href="{{ url_for('grading.review_editor', course_id=course.id) }}" class='btn btn-outline-secondary'>Review Editor</a> Manually grade submissions on specific submissions.<br><br>
-    <a href="{{ url_for('courses.manage_time', course_id=course.id) }}" class='btn btn-outline-secondary'>Manage Time Limits</a> Add, edit, and remove extra time for students on exams.<br><br>
-    </div>
-    <h3>Your Assignments</h3>
-    <small>Not visible to anyone else</small><br>
-    <a href="{{ url_for('courses.view_assignments', course_id=course.id) }}" class='btn btn-outline-secondary'>View Assignments as Student</a> View all the available assignments for this course as if you were a student.<br><br>
-    <a href="{{ url_for('courses.submissions_user', course_id=course.id, owner_id=g.user.id) }}" class='btn btn-outline-secondary'>View Your Submissions as Student</a> View your submissions as if you were a student<br><br>
-{% else %}
-    <a href="{{ url_for('courses.view_assignments', course_id=course.id) }}" class='btn btn-outline-secondary'>View Assignments</a> View all the available assignments for this course.<br><br>
-    <a href="{{ url_for('courses.submissions_user', course_id=course.id, owner_id=g.user.id) }}" class='btn btn-outline-secondary'>View Your Submissions</a> View your submissions for all of the assignments.<br><br>
-{% endif %}
+    <h1>Student Performance Dashboard</h1>
 
-    <h3>Textbook{{ 's' if textbooks|length > 1 else '' }}</h3>
-{% if textbooks %}
-    {% for textbook in textbooks %}
-    View the textbook: <a href="{{ url_for('assignments.load_textbook', path=textbook.url, course_id=course.id, embed=False) }}" class='btn btn-outline-secondary'>{{ textbook.name }}</a><br><br>
-    {% endfor %}
-    {% if is_instructor %}
-    <div class="instructor-only-tools p-2">
-        <small>Instructor Tools (not visible to students or TAs)</small><br>
-        <a href="{{ url_for('courses.edit_textbooks', course_id=course.id) }}" class='btn btn-outline-secondary'>Edit Textbooks</a> Edit the textbook settings.<br><br>
-    </div>
-    {% endif %}
-{% else %}
-    {% if is_instructor %}
-        <div class="instructor-only-tools p-2">
-        <small>Instructor Tools (not visible to students or TAs)</small><br>
-        <a href="{{ url_for('courses.edit_textbooks', course_id=course.id) }}" class='btn btn-outline-secondary'>Edit Textbooks</a> Add a textbook.<br><br>
+    <div class="mb-4">
+        <div class="form-inline">
+            <label class="mr-2" for="courseSelect">Course:</label>
+            <select id="courseSelect" class="form-control" style="max-width: 400px;">
+                <!-- This would ideally eventually be sorted such that the most recent courses appear first -->
+                <!-- So this would mean sorting them reverse alphabetically so that for example 25 would appear above 24 -->
+                <!-- However, you would ideally also find a way to also make 'F' appear above 'S' because technically Fall semesters are later in the year than Spring semesters -->
+                <option selected>{{ course.name }}</option>
+                <option>25F-CISC108-010: Introduction to Computer Science I</option>
+                <option>25S-CISC108-010: Introduction to Computer Science I</option>
+                <option>24F-CISC108-010: Introduction to Computer Science I</option>
+            </select>
         </div>
-    {% else %}
-        <div>This course does not have a textbook.</div>
-    {% endif %}
-{% endif %}
-
-{% if is_instructor %}
-<h3>Course Settings</h3>
-    <div class="instructor-only-tools p-2">
-    <small>Instructor Tools (not visible to students or TAs)</small><br>
-    <div class="ml-4">
-    <a href="{{ url_for('courses.edit', course_id=course.id) }}" class='btn btn-outline-secondary'>Edit Settings</a> Edit top-level course settings (visiblity, url, name, etc.).<br><br>
-    <strong>Settings:</strong>
-    <ul>
-    <li>Course name: <code>{{ course.name }}</code> <button onclick="renameCourse()" class='btn btn-outline-secondary btn-sm' title="Rename this course to something else.">Rename Course</button></li>
-    <li>Course url: <code>{{ course.url if course.url else "N/A" }}</code></li>
-    <li>Course id: <code>{{ course.id }}</code></li>
-    <li>Owner: <code>{{ course.owner and course.owner.name() }}</code> (<code>{{ course.owner_id }}</code>)</li>
-    <li>Visibility: <code>{{ course.visibility.title() }}</code></li>
-    <li>Lock status: <code>{{ 'Locked for editing' if course.locked else 'Unlocked' }}</code></li>
-    <li>Created: <code>{{ course.date_created|date_description }}</code></li>
-    <li title="When this course's settings were last updated (but not necessarily the contents of the course)">
-        Last Edited: <code>{{ course.date_modified|date_description }}</code></li>
-    {% if course.service != 'native' and course.service %}
-    <li><details>
-    <summary>LTI LMS: <code>{{ course.service.title() }}</code></summary>
-        <p>
-            <span>LTI Course ID: <code>{{ course.external_id }}</code></span><br>
-            <span>LTI Endpoint: <code>{{ course.endpoint }}</code></span><br>
-        </p>
-    </details></li>
-        </ul>
-    {% endif %}
-    {% set settings = course.get_all_settings() %}
-    {% if settings %}
-        <strong>Additional Settings:</strong>
-        <table class="table table-condensed table-striped table-responsive additional-settings">
-            <tr>
-                <th>Setting</th>
-                <th>Value</th>
-            </tr>
-            {% for k, v in settings.items() %}
-            <tr>
-                <td><code>{{ k }}</code></td>
-                <td>{{ v|highlight_json|safe }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        <details>
-            <summary>Show raw additional settings:</summary>
-            {{ settings|highlight_json|safe }}
-        </details>
-    {% endif %}
-    </div>
     </div>
 
-    <h3>Visibility Settings</h3>
-    <div class="instructor-only-tools p-2">
-    <a href="{{ url_for('courses.change_course_visibility', course_id=course.id, visibility='public') }}"
-       onclick="return confirm('Are you sure?')" class='btn btn-outline-secondary'>Make Course Public</a> Changes the visibility
-        of the course to "Public", which means it will be available to anyone visiting the main BlockPy site. Public
-        courses are meant to be consumed by anyone, even if they do not have a formal role in the course.<br><br>
-    <a href="{{ url_for('courses.change_course_visibility', course_id=course.id, visibility='private') }}"
-       onclick="return confirm('Are you sure?')" class='btn btn-outline-secondary'>Make Course Private</a> Changes the visibility
-        of the course to "Private", which means it will no longer show up in public course lists on the site. It will
-        still be accessible if folks know the direct link.<br><br>
-    <a href="{{ url_for('courses.change_course_visibility', course_id=course.id, visibility='archive') }}"
-       onclick="return confirm('Are you sure?')" class='btn btn-danger'>Archive Course</a> Changes the visibility
-        of the course to "Archived", which means it will no longer show up in your course lists. This does not affect
-        whether people can view private courses, but does affect public course access in some small ways.<br><br>
+    <div class="mb-4">
+        <div class="form-inline">
+            <label class="mr-2" for="studentSelect">Student:</label>
+            <select id="studentSelect" class="form-control" style="max-width: 400px;">
+                <option selected value="all">All Students (Class Overview)</option>
+                <option>Student A</option>
+                <option>Student B</option>
+                <option>Student C</option>
+                <option>Student D</option>
+                <option>Student E</option>
+                <option>Student F</option>            </select>
+        </div>
     </div>
+
+    <div class="row">
+
+        <!-- Potentially Struggling Students -->
+        <!-- List of students flagged as potentially struggling, including reasons (somehow based on data metrics) -->
+        <!-- Hyperlinks of students' names should take the user to the dashboard page for that student (equivalent to choosing their name in the Student dropdown)-->
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card">
+                <h5>Potentially Struggling Students</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-risk">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Reason(s)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#">Student A</a></td>
+                                <td><span class="badge badge-secondary">Low Effort</span></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#">Student B</a></td>
+                                <td><span class="badge badge-secondary">High Syntax Errors</span></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#">Student C</a></td>
+                                <td>
+                                    <span class="badge badge-secondary">Wheel-Spinning</span>
+                                    <span class="badge badge-secondary">Low Test Ratio</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Class-Wide Metrics -->
+        <!-- Histogram (or line graph) for displaying class-wide metrics over weeks -->
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card">
+                <div class="section-header">
+                    <h5>Class-Wide Metrics</h5>
+                    <select class="form-control form-control-sm" style="width: auto;">
+                        <option selected>Average Score</option>
+                        <option>Time Spent Coding</option>
+                        <option>Syntax Error Ratio</option>
+                        <option>Submission Count</option>
+                    </select>
+                </div>
+                <div class="graph-placeholder">
+                    [Histogram Visualization Goes Here]<br>
+                    X-Axis: Weeks | Y-Axis: Selected Metric
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Comparison (Clusters) -->
+        <!-- For comparing two metrics against each other -->
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card">
+                <div class="section-header">
+                    <h5>Metric Comparison (Clusters)</h5>
+                </div>
+                <div class="d-flex justify-content-center mb-2">
+                    <div class="mr-3">
+                        <small>X-Axis:</small>
+                        <select class="form-control form-control-sm">
+                            <option selected>Syntax Error Ratio</option>
+                            <option>Time Spent</option>
+                        </select>
+                    </div>
+                    <div>
+                        <small>Y-Axis:</small>
+                        <select class="form-control form-control-sm">
+                            <option selected>Unit Test Ratio</option>
+                            <option>Average Score</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="graph-placeholder">
+                    [Scatter Plot Visualization Goes Here]<br>
+                    Students plotted as dots to show clusters
+                </div>
+            </div>
+        </div>
+
+        <!-- Submission Timeline -->
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card">
+                <div class="section-header">
+                    <h5>Submission Timeline</h5>
+                    <select class="form-control form-control-sm" style="width: auto;">
+                        <option selected>Latest Assignment (HW 4)</option>
+                        <option>HW 3</option>
+                        <option>HW 2</option>
+                    </select>
+                </div>
+                <div class="graph-placeholder">
+                    [Timeline Visualization Goes Here]<br>
+                    Blue dots = Normal | Red dots = Cramming (Late)
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <!-- Full Class Roster -->
+        <!-- This table is meant to show all raw data for the entire class, would normally have more columns -->
+        <!-- Users should also be able to sort the table's rows by clicking on column headers -->
+        <!-- Hyperlinks of students' names should take the user to the dashboard page for that student (equivalent to choosing their name in the Student dropdown)-->
+        <div class="col-12">
+            <div class="dashboard-card">
+                <h5>Full Class Roster</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Current Grade</th>
+                                <th>Avg Time Spent</th>
+                                <th>Avg Syntax Error Ratio <small class="text-muted">(0.0 - 1.0)</small></th>
+                                <th>Avg Unit Test Ratio <small class="text-muted">(0.0 - 1.0)</small></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#">Student A</a></td>
+                                <td>82%</td>
+                                <td>0h 45m</td>
+                                <td>0.12</td>
+                                <td>0.85</td> </tr>
+                            <tr>
+                                <td><a href="#">Student B</a></td>
+                                <td>70%</td>
+                                <td>3h 20m</td>
+                                <td class="text-danger font-weight-bold">0.85</td>
+                                <td class="text-danger font-weight-bold">0.40</td> </tr>
+                            <tr>
+                                <td><a href="#">Student C</a></td>
+                                <td>75%</td>
+                                <td>5h 10m</td>
+                                <td>0.45</td>
+                                <td>0.62</td> </tr>
+                            <tr>
+                                <td><a href="#">Student D</a></td>
+                                <td>92%</td>
+                                <td>2h 15m</td>
+                                <td>0.05</td>
+                                <td>0.98</td> </tr>
+                            <tr>
+                                <td><a href="#">Student E</a></td>
+                                <td>88%</td>
+                                <td>1h 45m</td>
+                                <td>0.08</td>
+                                <td>0.94</td>
+                            </tr>
+                             <tr>
+                                <td><a href="#">Student F</a></td>
+                                <td>74%</td>
+                                <td>4h 30m</td>
+                                <td>0.22</td>
+                                <td>0.55</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <div class="alert alert-warning">
+        You do not have permission to view the Student Performance Dashboard.
+    </div>
+    <p>
+        <a href="{{ url_for('courses.index') }}">Return to Course List</a>
+    </p>
 {% endif %}
 
 {% endblock %}
