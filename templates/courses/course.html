@@ -18,9 +18,9 @@ Student Performance Dashboard: {{ course.name }}
             background-color: #fff;
             height: 100%;
         }
-            /* Just for placeholder graphs */
+        /* Just for placeholder graphs */
         .graph-placeholder {
-                        color: #6c757d;
+            color: #6c757d;
             height: 250px;
             display: flex;
             align-items: center;
@@ -63,13 +63,15 @@ Student Performance Dashboard: {{ course.name }}
     <script>
 
         // Chart Initializations
+        // NOTE: All 'data' values below are hardcoded placeholders.
+        // A later version of this should pull data from somewhere
 
         document.addEventListener('DOMContentLoaded', function() {
             
             // 1. Class-Wide Metrics
-            const ctxBar = document.getElementById('classBarChart');
-            if (ctxBar) {
-                new Chart(ctxBar, {
+            const classBarChart = document.getElementById('classBarChart');
+            if (classBarChart) {
+                new Chart(classBarChart, {
                     type: 'bar',
                     data: {
                         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
@@ -89,14 +91,14 @@ Student Performance Dashboard: {{ course.name }}
             }
 
             // 2. Metric Comparison
-            const ctxScatter = document.getElementById('classScatterChart');
-            if (ctxScatter) {
+            const classScatterChart = document.getElementById('classScatterChart');
+            if (classScatterChart) {
                 const scatterData = Array.from({length: 20}, () => ({
                     x: Math.random() * 10, 
                     y: Math.random() * 100 
                 }));
                 
-                new Chart(ctxScatter, {
+                new Chart(classScatterChart, {
                     type: 'scatter',
                     data: {
                         datasets: [{
@@ -116,11 +118,10 @@ Student Performance Dashboard: {{ course.name }}
             }
 
             // 3. Submission Timeline
-            const ctxTimeline = document.getElementById('submissionTimelineChart');
-            if (ctxTimeline) {
-                // More dummy data below
-                // "y: 0" forces them all onto a single horizontal line to look like a timeline
-                // "x" represents exactly when they submitted relative to assignment release. Decimals allowed for more granularity
+            const submissionTimelineChart = document.getElementById('submissionTimelineChart');
+            if (submissionTimelineChart) {
+                // This uses a scatter plot with y=0 to try to look like a timeline
+                // Made the points semi transparent so overlapping points become darker to show density
                 
                 const normalSubmissions = [
                     {x: 0.5, y: 0}, {x: 1.2, y: 0}, {x: 2.0, y: 0}, {x: 4.5, y: 0}, 
@@ -134,7 +135,7 @@ Student Performance Dashboard: {{ course.name }}
                     {x: 13.3, y: 0}, {x: 13.9, y: 0} 
                 ];
 
-                new Chart(ctxTimeline, {
+                new Chart(submissionTimelineChart, {
                     type: 'scatter',
                     data: {
                         datasets: [
@@ -199,9 +200,9 @@ Student Performance Dashboard: {{ course.name }}
             }
             
             // 4. Student Trend Line Chart
-            const ctxLine = document.getElementById('studentLineChart');
-            if (ctxLine) {
-                new Chart(ctxLine, {
+            const studentLineChart = document.getElementById('studentLineChart');
+            if (studentLineChart) {
+                new Chart(studentLineChart, {
                     type: 'line',
                     data: {
                         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
@@ -225,6 +226,8 @@ Student Performance Dashboard: {{ course.name }}
             }
         });
 
+        // 'pageshow' is used instead of 'DOMContentLoaded' to ensure the script runs
+        // even when the user hits the browser "Back" button
         window.addEventListener('pageshow', function() {
             // Get URL parameters
             const urlParams = new URLSearchParams(window.location.search);
@@ -389,12 +392,12 @@ Student Performance Dashboard: {{ course.name }}
                 </div>
             </div>
 
-            <!-- Metric Comparison (Clusters) -->
+            <!-- Metric Comparison -->
             <!-- For comparing two metrics against each other -->
             <div class="col-md-6 mb-4">
                 <div class="dashboard-card">
                     <div class="section-header">
-                        <h5>Metric Comparison (Clusters)</h5>
+                        <h5>Metric Comparison</h5>
                     </div>
                     <div class="d-flex justify-content-center mb-2">
                         <div class="mr-3">
@@ -419,6 +422,7 @@ Student Performance Dashboard: {{ course.name }}
             </div>
 
             <!-- Submission Timeline -->
+            <!-- Timeline showing when students submitted/finished their assignments to easily see how early/late students are working on them -->
             <div class="col-md-6 mb-4">
                 <div class="dashboard-card d-flex flex-column">
                     <div class="section-header">
@@ -537,6 +541,7 @@ Student Performance Dashboard: {{ course.name }}
             </div>
         </div>
 
+        <!-- Header section for some quick info about student -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="dashboard-card bg-light">
@@ -555,6 +560,7 @@ Student Performance Dashboard: {{ course.name }}
                             </p>
                         </div>
 
+                        <!-- Allows instructor to keep a log of intervention attempts for the student -->
                         <div class="col-md-6 border-left">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h5 class="mb-0">Intervention Log</h5>
@@ -580,11 +586,12 @@ Student Performance Dashboard: {{ course.name }}
             ⚠️ Student At Risk: High Syntax Errors
         </div>
 
+        <!-- Gives instructors a quick glance at some important data metrics for the student (could be different metrics than those currently shown) -->
         <div class="row mb-4 text-center">
             <div class="col-md-3">
                 <div class="dashboard-card py-3">
                     <div class="stats-label">Avg Score</div>
-                    <div class="stats-value">82%</div>
+                    <div class="stats-value">65%</div>
                     <small class="text-muted">Class Avg: 79%</small>
                 </div>
             </div>
@@ -610,6 +617,7 @@ Student Performance Dashboard: {{ course.name }}
             </div>
         </div>
 
+        <!-- Basic graph to allow an instructor to quickly compare student performance to class average over time, for any chosen data metric -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="dashboard-card">
@@ -633,6 +641,8 @@ Student Performance Dashboard: {{ course.name }}
             </div>
         </div>
 
+        <!-- Table showing all data metrics for the student, per assignment -->
+        <!-- Meant to be a way for the instructor to see raw data like the Full Class Roster -->
         <div class="row">
             <div class="col-12">
                 <div class="dashboard-card">
