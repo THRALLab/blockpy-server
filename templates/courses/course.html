@@ -7,6 +7,18 @@ Student Performance Dashboard: {{ course.name }}
 {% block statusbar %}
 {% endblock %}
 
+<!--
+Student Performance Dashboard Prototype
+
+Some Key Details:
+- Visualizations: Uses Chart.js (loaded via CDN in the template).
+- Class/Student Views: Switching between the "Class View" and "Student View" is handled entirely by client-side JavaScript using the `?student=` URL query parameter.
+    This was just a quick way to handle it and could be done a different way.
+- Data: All chart data and student metrics are currently hardcoded JavaScript arrays inside the `<script>` block.
+    These are just placeholders and should be replaced with a better method such as what appears to be Jinja above in this file/elsewhere in this repo.
+-->
+
+
 {% block extrahead %}
     <style>
         /* Shared styles */
@@ -64,7 +76,8 @@ Student Performance Dashboard: {{ course.name }}
 
         // Chart Initializations
         // NOTE: All 'data' values below are hardcoded placeholders.
-        // A later version of this should pull data from somewhere
+        // A later version of this should pull data from somewhere,
+        // probably using what appears to be Jinja above in this file.
 
         document.addEventListener('DOMContentLoaded', function() {
             
