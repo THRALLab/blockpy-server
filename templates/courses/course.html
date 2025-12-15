@@ -20,9 +20,7 @@ Student Performance Dashboard: {{ course.name }}
         }
             /* Just for placeholder graphs */
         .graph-placeholder {
-            background-color: #f8f9fa;
-            border: 2px dashed #ced4da;
-            color: #6c757d;
+                        color: #6c757d;
             height: 250px;
             display: flex;
             align-items: center;
@@ -60,7 +58,173 @@ Student Performance Dashboard: {{ course.name }}
         }
     </style>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
+
+        // Chart Initializations
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // 1. Class-Wide Metrics
+            const ctxBar = document.getElementById('classBarChart');
+            if (ctxBar) {
+                new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                        datasets: [{
+                            label: 'Avg Score',
+                            data: [85, 88, 92, 78, 85], 
+                            backgroundColor: '#3498db'
+                        }]
+                    },
+                    options: { 
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, max: 100 }
+                        }
+                    }
+                });
+            }
+
+            // 2. Metric Comparison
+            const ctxScatter = document.getElementById('classScatterChart');
+            if (ctxScatter) {
+                const scatterData = Array.from({length: 20}, () => ({
+                    x: Math.random() * 10, 
+                    y: Math.random() * 100 
+                }));
+                
+                new Chart(ctxScatter, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Students',
+                            data: scatterData,
+                            backgroundColor: '#e74c3c'
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { title: { display: true, text: 'Syntax Error Ratio' } },
+                            y: { title: { display: true, text: 'Unit Test Ratio' } }
+                        }
+                    }
+                });
+            }
+
+            // 3. Submission Timeline
+            const ctxTimeline = document.getElementById('submissionTimelineChart');
+            if (ctxTimeline) {
+                // More dummy data below
+                // "y: 0" forces them all onto a single horizontal line to look like a timeline
+                // "x" represents exactly when they submitted relative to assignment release. Decimals allowed for more granularity
+                
+                const normalSubmissions = [
+                    {x: 0.5, y: 0}, {x: 1.2, y: 0}, {x: 2.0, y: 0}, {x: 4.5, y: 0}, 
+                    {x: 5.1, y: 0}, {x: 8.0, y: 0}
+                ];
+                
+                const lateSubmissions = [
+                    {x: 12.1, y: 0}, {x: 12.4, y: 0}, {x: 12.8, y: 0}, 
+                    {x: 13.0, y: 0}, {x: 13.1, y: 0}, {x: 13.1, y: 0}, 
+                    {x: 13.1, y: 0}, {x: 13.2, y: 0}, {x: 13.2, y: 0},
+                    {x: 13.3, y: 0}, {x: 13.9, y: 0} 
+                ];
+
+                new Chart(ctxTimeline, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [
+                            {
+                                label: 'Normal Submission',
+                                data: normalSubmissions,
+                                // Blue with 60% opacity - overlaps become darker to show density
+                                backgroundColor: 'rgba(52, 152, 219, 0.6)', 
+                                pointRadius: 4,
+                                pointHoverRadius: 4
+                            },
+                            {
+                                label: 'Late / Cramming',
+                                data: lateSubmissions,
+                                // Red with 60% opacity - overlaps become darker to show density
+                                backgroundColor: 'rgba(231, 76, 60, 0.6)', 
+                                pointRadius: 4,
+                                pointHoverRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: { left: 20, right: 20, top: 20, bottom: 10 }
+                        },
+                        scales: {
+                            y: { 
+                                display: false,
+                                min: -1, 
+                                max: 1 
+                            },
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: { display: true, text: 'Timeline (Days Since Assigned)' },
+                                min: 0,
+                                max: 14, // Assuming two weeks for assignments
+                                grid: {
+                                    drawBorder: false,
+                                    color: '#f0f0f0'
+                                },
+                                ticks: {
+                                    stepSize: 1 // Show every day
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: { usePointStyle: true }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Day ' + context.parsed.x;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 4. Student Trend Line Chart
+            const ctxLine = document.getElementById('studentLineChart');
+            if (ctxLine) {
+                new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [
+                            {
+                                label: 'Class Average',
+                                data: [65, 59, 80, 81],
+                                borderColor: '#33B80D',
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Student A',
+                                data: [28, 48, 40, 19],
+                                borderColor: '#48A4CE',
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: { maintainAspectRatio: false }
+                });
+            }
+        });
+
         window.addEventListener('pageshow', function() {
             // Get URL parameters
             const urlParams = new URLSearchParams(window.location.search);
@@ -219,9 +383,8 @@ Student Performance Dashboard: {{ course.name }}
                             <option>Submission Count</option>
                         </select>
                     </div>
-                    <div class="graph-placeholder">
-                        [Histogram Visualization Goes Here]<br>
-                        X-Axis: Weeks progressed in semester | Y-Axis: Selected metric
+                    <div class="graph-placeholder" style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="classBarChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -249,16 +412,15 @@ Student Performance Dashboard: {{ course.name }}
                             </select>
                         </div>
                     </div>
-                    <div class="graph-placeholder">
-                        [Scatter Plot Visualization Goes Here]<br>
-                        Students plotted as dots to show clusters
+                    <div class="graph-placeholder" style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="classScatterChart"></canvas>
                     </div>
                 </div>
             </div>
 
             <!-- Submission Timeline -->
             <div class="col-md-6 mb-4">
-                <div class="dashboard-card">
+                <div class="dashboard-card d-flex flex-column">
                     <div class="section-header">
                         <h5>Submission Timeline</h5>
                         <select class="form-control form-control-sm" style="width: auto;">
@@ -267,9 +429,8 @@ Student Performance Dashboard: {{ course.name }}
                             <option>HW 2</option>
                         </select>
                     </div>
-                    <div class="graph-placeholder">
-                        [Timeline Visualization Goes Here]<br>
-                        Blue dots = Normal | Red dots = Cramming (Late)
+                    <div class="graph-placeholder my-auto" style="position: relative; height: 120px; width: 100%;">
+                        <canvas id="submissionTimelineChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -461,13 +622,12 @@ Student Performance Dashboard: {{ course.name }}
                             <option>Grade</option>
                         </select>
                         <div class="ml-auto">
-                            <span class="mr-3" style="color: green;">&#9632; Class Average</span>
-                            <span style="color: #007bff;">&#9632; Student A</span>
+                            <span class="mr-3" style="color: #33B80D;">&#9632; Class Average</span>
+                            <span style="color: #48A4CE;">&#9632; Student A</span>
                         </div>
                     </div>
-                    <div class="graph-placeholder">
-                        [Line Graph Visualization Goes Here]<br>
-                        X-Axis: Weeks progressed in semester | Y-Axis: Selected metric
+                    <div class="graph-placeholder" style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="studentLineChart"></canvas>
                     </div>
                 </div>
             </div>
