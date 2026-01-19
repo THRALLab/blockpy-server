@@ -68,11 +68,77 @@ Some Key Details:
             border-top: 1px solid #eee;
             padding-top: 10px;
         }
+        .scroll-box {
+            width: auto;
+            height: 40vh;
+            overflow: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .hoverOver{
+            cursor: pointer;
+            background-color: transparent;
+        }
+
+        .hoverOver:hover {
+            background-color: #cee2f7;
+        }
     </style>
 
+
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
+
+
+        function CreateSubmissionTimelineChart(canvas) {
+            const normalSubmissions = [
+                { x: 0.5, y: 0 }, { x: 1.2, y: 0 }, { x: 2.0, y: 0 },
+                { x: 4.5, y: 0 }, { x: 5.1, y: 0 }, { x: 8.0, y: 0 }
+            ];
+
+            const lateSubmissions = [
+                { x: 12.1, y: 0 }, { x: 12.4, y: 0 }, { x: 12.8, y: 0 },
+                { x: 13.0, y: 0 }, { x: 13.1, y: 0 }, { x: 13.2, y: 0 },
+                { x: 13.3, y: 0 }, { x: 13.9, y: 0 }
+            ];
+
+            new Chart(canvas, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Normal Submission',
+                            data: normalSubmissions,
+                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                            pointRadius: 4
+                        },
+                        {
+                            label: 'Late / Cramming',
+                            data: lateSubmissions,
+                            backgroundColor: 'rgba(231, 76, 60, 0.6)',
+                            pointRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { display: false, min: -1, max: 1 },
+                        x: {
+                            min: 0,
+                            max: 14,
+                            ticks: { stepSize: 1 },
+                            title: { display: true, text: 'Timeline (Days Since Assigned)' }
+                        }
+                    }
+                }
+            });
+    }
+
+        
 
         // Chart Initializations
         // NOTE: All 'data' values below are hardcoded placeholders.
@@ -80,6 +146,10 @@ Some Key Details:
         // probably using what appears to be Jinja above in this file.
 
         document.addEventListener('DOMContentLoaded', function() {
+
+
+            
+            
             
             // 1. Class-Wide Metrics
             const classBarChart = document.getElementById('classBarChart');
@@ -87,7 +157,7 @@ Some Key Details:
                 new Chart(classBarChart, {
                     type: 'bar',
                     data: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                        labels: ['Assignment A', 'Assignment B', 'Assignment C', 'Assignment D', 'Assignment E'],
                         datasets: [{
                             label: 'Avg Score',
                             data: [85, 88, 92, 78, 85], 
@@ -130,87 +200,12 @@ Some Key Details:
                 });
             }
 
-            // 3. Submission Timeline
-            const submissionTimelineChart = document.getElementById('submissionTimelineChart');
-            if (submissionTimelineChart) {
-                // This uses a scatter plot with y=0 to try to look like a timeline
-                // Made the points semi transparent so overlapping points become darker to show density
-                
-                const normalSubmissions = [
-                    {x: 0.5, y: 0}, {x: 1.2, y: 0}, {x: 2.0, y: 0}, {x: 4.5, y: 0}, 
-                    {x: 5.1, y: 0}, {x: 8.0, y: 0}
-                ];
-                
-                const lateSubmissions = [
-                    {x: 12.1, y: 0}, {x: 12.4, y: 0}, {x: 12.8, y: 0}, 
-                    {x: 13.0, y: 0}, {x: 13.1, y: 0}, {x: 13.1, y: 0}, 
-                    {x: 13.1, y: 0}, {x: 13.2, y: 0}, {x: 13.2, y: 0},
-                    {x: 13.3, y: 0}, {x: 13.9, y: 0} 
-                ];
+            /* 3. Submission Timeline
+                Create multiple charts for demonstration, canvas elements should 
+                have class 'submission-chart' for this to call the CreateSubmissionTimelineChart function
+            */
+            document.querySelectorAll('.submission-chart').forEach(canvas => { CreateSubmissionTimelineChart(canvas);});
 
-                new Chart(submissionTimelineChart, {
-                    type: 'scatter',
-                    data: {
-                        datasets: [
-                            {
-                                label: 'Normal Submission',
-                                data: normalSubmissions,
-                                // Blue with 60% opacity - overlaps become darker to show density
-                                backgroundColor: 'rgba(52, 152, 219, 0.6)', 
-                                pointRadius: 4,
-                                pointHoverRadius: 4
-                            },
-                            {
-                                label: 'Late / Cramming',
-                                data: lateSubmissions,
-                                // Red with 60% opacity - overlaps become darker to show density
-                                backgroundColor: 'rgba(231, 76, 60, 0.6)', 
-                                pointRadius: 4,
-                                pointHoverRadius: 4
-                            }
-                        ]
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        layout: {
-                            padding: { left: 20, right: 20, top: 20, bottom: 10 }
-                        },
-                        scales: {
-                            y: { 
-                                display: false,
-                                min: -1, 
-                                max: 1 
-                            },
-                            x: {
-                                type: 'linear',
-                                position: 'bottom',
-                                title: { display: true, text: 'Timeline (Days Since Assigned)' },
-                                min: 0,
-                                max: 14, // Assuming two weeks for assignments
-                                grid: {
-                                    drawBorder: false,
-                                    color: '#f0f0f0'
-                                },
-                                ticks: {
-                                    stepSize: 1 // Show every day
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: { usePointStyle: true }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return 'Day ' + context.parsed.x;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
             
             // 4. Student Trend Line Chart
             const studentLineChart = document.getElementById('studentLineChart');
@@ -218,7 +213,7 @@ Some Key Details:
                 new Chart(studentLineChart, {
                     type: 'line',
                     data: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        labels: ['Assignment A', 'Assignment B', 'Assignment C', 'Assignment D'],
                         datasets: [
                             {
                                 label: 'Class Average',
@@ -317,7 +312,7 @@ Some Key Details:
         <div class="mb-4">
             <div class="form-inline">
                 <label class="mr-2" for="courseSelect">Course:</label>
-                <select id="courseSelect" class="form-control" style="width: 400px;">
+                <select id="courseSelect" class="form-control" style="width: 400px; cursor: pointer;">
                     <!-- This would ideally eventually be sorted such that the most recent courses appear first -->
                     <!-- So this would mean sorting them reverse alphabetically so that for example 25 would appear above 24 -->
                     <!-- However, you would ideally also find a way to also make 'F' appear above 'S' because technically Fall semesters are later in the year than Spring semesters -->
@@ -332,7 +327,7 @@ Some Key Details:
         <div class="mb-4">
             <div class="form-inline">
                 <label class="mr-2" for="studentSelectClassPage">Student:</label>
-                <select id="studentSelectClassPage" class="form-control" style="width: 400px;">
+                <select id="studentSelectClassPage" class="form-control" style="width: 400px; cursor: pointer;">
                     <option selected value="all">All Students (Class Overview)</option>
                     <option>Student A</option>
                     <option>Student B</option>
@@ -392,7 +387,7 @@ Some Key Details:
                 <div class="dashboard-card">
                     <div class="section-header">
                         <h5>Class-Wide Metrics</h5>
-                        <select class="form-control form-control-sm" style="width: auto;">
+                        <select class="form-control form-control-sm" style="width: auto; cursor: pointer;" >
                             <option selected>Average Score</option>
                             <option>Time Spent Coding</option>
                             <option>Syntax Error Ratio</option>
@@ -404,6 +399,7 @@ Some Key Details:
                     </div>
                 </div>
             </div>
+            
 
             <!-- Metric Comparison -->
             <!-- For comparing two metrics against each other -->
@@ -415,14 +411,14 @@ Some Key Details:
                     <div class="d-flex justify-content-center mb-2">
                         <div class="mr-3">
                             <small>X-Axis:</small>
-                            <select class="form-control form-control-sm">
+                            <select class="form-control form-control-sm" style="cursor: pointer;">
                                 <option selected>Syntax Error Ratio</option>
                                 <option>Time Spent</option>
                             </select>
                         </div>
                         <div>
                             <small>Y-Axis:</small>
-                            <select class="form-control form-control-sm">
+                            <select class="form-control form-control-sm" style="cursor: pointer;">
                                 <option selected>Unit Test Ratio</option>
                                 <option>Average Score</option>
                             </select>
@@ -440,17 +436,36 @@ Some Key Details:
                 <div class="dashboard-card d-flex flex-column">
                     <div class="section-header">
                         <h5>Submission Timeline</h5>
-                        <select class="form-control form-control-sm" style="width: auto;">
-                            <option selected>Latest Assignment (HW 4)</option>
-                            <option>HW 3</option>
-                            <option>HW 2</option>
+                        <select class="form-control form-control-sm" style="width: auto; cursor: pointer;">
+                            <option selected>Latest Assignments (3)</option>
+                            <option>Assignment 3</option>
+                            <option>Assignment 2</option>
+                            <option>Assignment 1</option>
                         </select>
                     </div>
-                    <div class="graph-placeholder my-auto" style="position: relative; height: 120px; width: 100%;">
-                        <canvas id="submissionTimelineChart"></canvas>
-                    </div>
+
+                    <section class="scroll-box" style="display: flex; flex-direction: column; gap: 5vh;">
+                        
+                        <div class="graph-placeholder my-autod-flex flex-column" style=" height: 120px; width: 100%;">
+                            <label class="form-control mr-3" style="align-self: flex-start; width:auto; margin-top:5vh; background: #cee2f7;">Assignment 3</label>
+                            <canvas  style=" width: fit-content; " id="submissionTimelineChart3" class="submission-chart"></canvas>
+                        </div>
+                        <div class="graph-placeholder my-auto d-flex flex-column" style=" height: 120px; width: 100%; "">
+                            <label class="form-control mr-3" style="align-self: flex-start; width:auto; margin-top:5vh ; background: #cee2f7;">Assignment 2</label>
+                            <canvas id="submissionTimelineChart2" class="submission-chart"></canvas>
+                        </div>
+                        <div class="graph-placeholder my-auto d-flex flex-column" style=" height: 120px; width: 100%; ">
+                            <label class="form-control mr-3" style="align-self: flex-start; width:auto; margin-top:5vh; background: #cee2f7;">Assignment 1</label>
+                            <canvas id="submissionTimelineChart" class="submission-chart"></canvas>
+                        </div>
+                        
+                    
+                    </section>
+                    
                 </div>
+                
             </div>
+            
 
         </div>
 
@@ -528,7 +543,7 @@ Some Key Details:
         <div class="mb-4">
             <div class="form-inline">
                 <label class="mr-2" for="courseSelectDetail">Course:</label>
-                <select id="courseSelectDetail" class="form-control" style="width: 400px;">
+                <select id="courseSelectDetail" class="form-control" style="width: 400px; cursor: pointer;">
                     <option selected>{{ course.name }}</option>
                     <option>25F-CISC108-010: Introduction to Computer Science I</option>
                     <option>25S-CISC108-010: Introduction to Computer Science I</option>
@@ -540,7 +555,7 @@ Some Key Details:
         <div class="mb-4">
             <div class="form-inline">
                 <label class="mr-2" for="studentSelectStudentPage">Student:</label>
-                <select id="studentSelectStudentPage" class="form-control mr-3" style="width: 400px;">
+                <select id="studentSelectStudentPage" class="form-control mr-3" style="width: 400px; cursor: pointer;">
                     <option value="all">All Students (Class Overview)</option>
                     <option value="Student A">Student A</option>
                     <option value="Student B">Student B</option>
@@ -600,32 +615,38 @@ Some Key Details:
         </div>
 
         <!-- Gives instructors a quick glance at some important data metrics for the student (could be different metrics than those currently shown) -->
-        <div class="row mb-4 text-center">
-            <div class="col-md-3">
-                <div class="dashboard-card py-3">
+        <div class="row mb-4 text-center items-center" style="  justify-content: center;">
+            <div class="col-md-2 " style=" min-width: 19vw;">
+                <div class="dashboard-card py-3 hoverOver">
                     <div class="stats-label">Avg Score</div>
                     <div class="stats-value">65%</div>
-                    <small class="text-muted">Class Avg: 79%</small>
+                    <small class="text-muted" style="font-size: medium;">Class Avg: 79%</small>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="dashboard-card py-3">
+            <div class="col-md-2" style=" min-width: 19vw;">
+                <div class="dashboard-card py-3 hoverOver">
                     <div class="stats-label">Avg Time / Asgn</div>
                     <div class="stats-value">2h 15m</div>
-                    <small class="text-muted">Class Avg: 1h 30m</small>
+                    <small class="text-muted" style="font-size: medium;">Class Avg: 1h 30m</small>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="dashboard-card py-3">
+            <div class="col-md-2" style=" min-width: 19vw;">
+                <div class="dashboard-card py-3 hoverOver">
                     <div class="stats-label">Avg Runs / Asgn</div>
                     <div class="stats-value text-danger">45</div>
-                    <small class="text-muted">Class Avg: 12</small>
+                    <small class="text-muted" style="font-size: medium;">Class Avg: 12</small>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="dashboard-card py-3">
-                    <div class="stats-label">Missing / Late</div>
-                    <div class="stats-value">1 / 2</div>
+            <div class="col-md-2" style=" min-width: 19vw;">
+                <div class="dashboard-card py-3 hoverOver">
+                    <div class="stats-label">Missing Asgn</div>
+                    <div class="stats-value">1</div>
+                </div>
+            </div>
+            <div class="col-md-2" style=" min-width: 19vw;">
+                <div class="dashboard-card py-3 hoverOver">
+                    <div class="stats-label">Late Asign</div>
+                    <div class="stats-value">2</div>
                 </div>
             </div>
         </div>
