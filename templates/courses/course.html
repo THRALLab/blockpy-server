@@ -95,14 +95,15 @@ Some Key Details:
 
         function CreateSubmissionTimelineChart(canvas) {
             const normalSubmissions = [
-                { x: 0.5, y: 0 }, { x: 1.2, y: 0 }, { x: 2.0, y: 0 },
-                { x: 4.5, y: 0 }, { x: 5.1, y: 0 }, { x: 8.0, y: 0 }
+                { x: 11.5, y: 0 }, { x: 10.8, y: 0 },
+                { x: 9.5,  y: 0 }, { x: 7.5,  y: 0 },
+                { x: 6.9,  y: 0 }, { x: 4.0,  y: 0 }  
             ];
 
             const lateSubmissions = [
-                { x: 12.1, y: 0 }, { x: 12.4, y: 0 }, { x: 12.8, y: 0 },
-                { x: 13.0, y: 0 }, { x: 13.1, y: 0 }, { x: 13.2, y: 0 },
-                { x: 13.3, y: 0 }, { x: 13.9, y: 0 }
+                { x: 3.0,  y: 0 }, { x: 2.5,  y: 0 },
+                { x: 2.0,  y: 0 },{ x: 1.0,  y: 0 },
+                { x: 0.2,  y: 0 }, { x: -0.3, y: 0 }, { x: -0.8, y: 0 }, { x: -1.5, y: 0 }
             ];
 
             new Chart(canvas, {
@@ -126,12 +127,13 @@ Some Key Details:
                 options: {
                     maintainAspectRatio: false,
                     scales: {
-                        y: { display: false, min: -1, max: 1 },
+                        y: { display: false, max: 1, min: -1,  },
                         x: {
-                            min: 0,
-                            max: 14,
+                            reverse: true, 
+                            max: 12,
+                            min: -3,
                             ticks: { stepSize: 1 },
-                            title: { display: true, text: 'Timeline (Days Since Assigned)' }
+                            title: { display: true, text: 'Timeline (Days before due)' }
                         }
                     }
                 }
@@ -157,7 +159,7 @@ Some Key Details:
                 new Chart(classBarChart, {
                     type: 'bar',
                     data: {
-                        labels: ['Assignment A', 'Assignment B', 'Assignment C', 'Assignment D', 'Assignment E'],
+                        labels: ['Assignment 1', 'Assignment 2', 'Assignment 3', 'Assignment 4', 'Assignment 5'],
                         datasets: [{
                             label: 'Avg Score',
                             data: [85, 88, 92, 78, 85], 
@@ -213,7 +215,7 @@ Some Key Details:
                 new Chart(studentLineChart, {
                     type: 'line',
                     data: {
-                        labels: ['Assignment A', 'Assignment B', 'Assignment C', 'Assignment D'],
+                        labels: ['Assignment 1', 'Assignment 2', 'Assignment 3', 'Assignment 4'],
                         datasets: [
                             {
                                 label: 'Class Average',
@@ -624,8 +626,8 @@ Some Key Details:
                 </div>
             </div>
             <div class="col-md-2" style=" min-width: 19vw;">
-                <div class="dashboard-card py-3 hoverOver">
-                    <div class="stats-label">Avg Time / Asgn</div>
+                <div class="dashboard-card py-3 hoverOver" style=" background-color: #c6d6f5;">
+                    <div class="stats-label">Avg Time Spent / Asgn</div>
                     <div class="stats-value">2h 15m</div>
                     <small class="text-muted" style="font-size: medium;">Class Avg: 1h 30m</small>
                 </div>
