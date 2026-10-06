@@ -23,6 +23,7 @@ node_modules/
 venv/
 venv_old/
 env/
+BlockpyVirtualEnv/
 
 # Certain static files
 static/.webassets-cache/

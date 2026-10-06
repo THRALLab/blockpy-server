@@ -201,6 +201,7 @@ def rename_course():
     new_name = request.values.get('name')
     Course.rename(course_id, new_name)
     return jsonify(success=True)
+    
 
 
 @courses.route('/add_canvas/', methods=['GET', 'POST'])
@@ -259,6 +260,40 @@ def assignments(course_id):
                            course_groups=course_groups,
                            course_id=course_id,
                            course=course)
+
+
+@courses.route('/analytics/<course_id>/', methods=['GET', 'POST'])
+@courses.route('/analytics/<course_id>', methods=['GET', 'POST'])
+def analytics(course_id):
+    user, user_id = get_user()
+
+    if course_id.isdigit():
+        course_id = int(course_id)
+        course = Course.by_id(course_id)
+    else:
+        course = Course.by_url(course_id)
+
+    
+    check_resource_exists(course, "Course", course_id)
+
+    if not user.in_course(course_id) and course.visibility != "public":
+        flash("You are not a user in this course and/or it is not public.")
+        return redirect(url_for('courses.index'))
+
+    is_instructor = user.is_instructor(course_id)
+    is_grader = user.is_grader(course_id)
+    textbooks = course.get_textbooks()
+
+    
+    return render_template(
+        'courses/analytics.html',
+        course=course,
+        course_id=course_id,
+        is_grader=is_grader,
+        is_instructor=is_instructor,
+        textbooks=textbooks
+    )
+
 
 @courses.route('/users/', methods=['GET'])
 @courses.route('/users', methods=['GET'])
